@@ -1,4 +1,4 @@
-import { statesList, actions } from './states'
+import { statesList, actions } from './settings'
 
 export type GameStates = (typeof statesList)[number]
 export type Actions = (typeof actions)[number]
@@ -16,6 +16,7 @@ export type GameContext = {
     player1: Actions[]
     player2: Actions[]
   }
+  setOutput: (text: string) => void
 }
 
 export type State = {
