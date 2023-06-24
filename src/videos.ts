@@ -28,7 +28,7 @@ export const loadVideos = () => {
 }
 
 const createVideoElement = (wrapper: HTMLElement, videoName: string) => {
-  const url = videoName + '.mov'
+  const url ='.' + videoName + '.mov'
   const type = 'video/mp4'
   const video = document.createElement('video')
   const source = document.createElement('source')

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rouge Vs Bleu</title>
+    <script type="module" crossorigin>
+(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const o of document.querySelectorAll('link[rel="modulepreload"]'))s(o);new MutationObserver(o=>{for(const r of o)if(r.type==="childList")for(const a of r.addedNodes)a.tagName==="LINK"&&a.rel==="modulepreload"&&s(a)}).observe(document,{childList:!0,subtree:!0});function n(o){const r={};return o.integrity&&(r.integrity=o.integrity),o.referrerPolicy&&(r.referrerPolicy=o.referrerPolicy),o.crossOrigin==="use-credentials"?r.credentials="include":o.crossOrigin==="anonymous"?r.credentials="omit":r.credentials="same-origin",r}function s(o){if(o.ep)return;o.ep=!0;const r=n(o);fetch(o.href,r)}})();const P=({player1:e,player2:t,callback:n})=>{document.addEventListener("keypress",s=>{if(s.repeat)return;const o=s.key;console.log(o);const r=e.get(o)??t.get(o);if(!r)return;let a=e.has(o)?1:2;n(a,r)})},E=async(e=400,t=3)=>{const n=document.body.animate([{transform:"translateX(0%)"},{transform:`translateX(${t}%)`},{transform:`translateX(-${t}%)`},{transform:`translateX(${t}%)`},{transform:`translateX(-${t}%)`},{transform:`translateX(${t}%)`},{transform:"translateX(0)"}],{duration:e});return new Promise(s=>{n.onfinish=()=>{s(!0)}})},q=["left","right","punch","await"],v=document.querySelectorAll(".videoWrapper"),C=[...q,"punched"],L=()=>{v.forEach((e,t)=>{f(e,`/player${t+1}/start`),f(e,`/player${t+1}/fight`),f(e,`/player${t+1}/win`),f(e,`/player${t+1}/loose`);for(let n=-1;n<=1;n++)C.forEach(s=>{if(n===-1&&s==="left"||n===1&&s==="right")return;const o=`/player${t+1}/${n}-${s}`;f(e,o)})})},f=(e,t)=>{const n="."+t+".mov",s="video/mp4",o=document.createElement("video"),r=document.createElement("source");r.src=n,r.type=s,o.appendChild(r),o.setAttribute("data-video",t),e.appendChild(o)},u=async e=>{for(let t=0;t<e.length;t++)await O(e[t]);return!0},O=async({player:e,position:t,anim:n})=>new Promise((s,o)=>{n=t===-1&&n==="left"||t===1&&n==="right"?"await":n;const r=v[e-1],a=t!==void 0?`/player${e}/${t}-${n}`:`/player${e}/${n}`,c=r.querySelector(`video[data-video="${a}"]`);if(!c)return o(Error(`pas de vidéo pour ${a}`));const i=r.querySelector("video.currentVideo");i&&(i.classList.remove("currentVideo"),i.currentTime=0),c.classList.add("currentVideo"),c.play(),c.onended=()=>s(!0)}),b=async(e,t,n)=>{const s=Math.min(e.length,t.length);let o=0,r=0;for(let a=0;a<s;a++){const c=e[a],i=t[a],l=g(c,o),p=g(i,r),d=A(l,p,c,i),m=[{player:1,anim:c,position:o}],h=[{player:2,anim:i,position:r}];d&&(c==="punch"&&i!=="punch"&&h.push({player:2,anim:"punched",position:p}),i==="punch"&&c!=="punch"&&m.push({player:1,anim:"punched",position:l})),await X(m,h),o=l,r=p,d&&(await E(),c==="punch"&&(n.score=[n.score[0]+1,n.score[1]]),i==="punch"&&(n.score=[n.score[0],n.score[1]+1]))}},A=(e,t,n,s)=>e===t&&[n,s].includes("punch"),g=(e,t)=>e==="left"?Math.max(-1,t-1):e==="right"?Math.min(1,t+1):t,X=async(e,t)=>await Promise.all([u(e),u(t)]),M={start:()=>{u([{player:1,anim:"await",position:0}]),u([{player:2,anim:"await",position:0}]),console.log("deb")},input:(e,t)=>{t.state="settings"}},N={start:async e=>{e.round===1&&await Promise.all([u([{player:1,anim:"start"},{player:1,anim:"fight"}]),u([{player:2,anim:"start"},{player:2,anim:"fight"}])]),e.setOutput("enter your commands")},input:(e,t)=>{const{player:n,action:s}=e;n===1&&t.actions.player1.length<10&&(t.actions={...t.actions,player1:[...t.actions.player1,s]}),n===2&&t.actions.player2.length<10&&(t.actions={...t.actions,player2:[...t.actions.player2,s]}),console.log(t.actions.player1.length,t.actions.player2.length),t.actions.player1.length>=10&&t.actions.player2.length>=10&&(t.state="animation")}},V={start:async e=>{e.setOutput("fight");const{round:t,actions:n}=e;if(await b(n.player1,n.player2,e),t>=3){e.state="end";return}e.round=e.round+1,e.state="settings",e.actions={player1:[],player2:[]}}},K={start:async e=>{const{score:t}=e,n=t[0]>=t[1]?"win":"loose",s=t[1]>=t[0]?"win":"loose";let o="draw";t[0]>t[1]&&(o="player 1 wins"),t[1]>t[0]&&(o="player 2 wins"),await Promise.all([u([{player:1,anim:n}]),u([{player:2,anim:s}])]),e.setOutput(o)},input:(e,t)=>{t.score=[0,0],t.actions={player1:[],player2:[]},t.round=1,t.state="settings"}},w={idle:M,settings:N,animation:V,end:K},R=(e,t)=>t in e,_=(e,t,n,s)=>{const o={score:[0,0],actions:{player1:[],player2:[]},round:1,state:"idle",setOutput:s};let r=w[o.state];const a=new Proxy(o,{set:(c,i,l)=>{if(i==="state"){if(!R(c,i))return!1;const p=w[l],d=r.exit;d&&d(a),r=p,p.start&&p.start(a),document.body.className=l,console.log("state : ",l)}return i==="score"&&e(l),i==="round"&&(console.log("setround"),t(l)),i==="actions"&&n(l),Reflect.set(c,i,l)}});return r.start&&r.start(a),{input:c=>{r.input&&r.input(c,a)},ctx:a}};const S=document.querySelectorAll(".score"),y=document.querySelector(".round"),$=document.querySelectorAll(".cursor"),j=e=>{S[0].textContent=e[0].toString(),S[1].textContent=e[1].toString()},k=e=>{console.log(y,e),y&&(y.textContent=e.toString()+"/3")},F=e=>{Array.from($[0].children).forEach((t,n)=>{t.classList.toggle("active",n<e.player1.length)}),Array.from($[1].children).forEach((t,n)=>{t.classList.toggle("active",n<e.player2.length)})},G=e=>{var s;const t=document.querySelector("output");if(!t)return;t.textContent=e;const n=t.cloneNode(!0);(s=t.parentNode)==null||s.replaceChild(n,t)};L();const I=_(j,k,F,G);P({player1:new Map([["q","left"],["d","right"],["s","punch"]]),player2:new Map([["j","left"],["l","right"],["k","punch"]]),callback:(e,t)=>I.input({player:e,action:t})});
+
+</script>
+    <style>
+*,*:before,*:after{margin:0;padding:0;box-sizing:border-box}html,body{height:100%}body{display:grid;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol,"Noto Color Emoji";font-size:clamp(2.8rem,calc(2.45rem + 1.77vw),3.82rem);color:#ced4da;grid-template-columns:auto 1fr auto;background:#000}.video{margin-inline:auto;border-inline:1px solid #343a40;height:100vh;width:100%;display:grid;grid-template-columns:1fr 1fr;place-content:center}.videoWrapper:first-child{transform:scaleX(-1)}.videoWrapper:last-child{border-left:2px solid #343a40}video{max-width:100%;display:block;opacity:0}video.currentVideo{opacity:1}.player{display:flex;justify-content:center;align-items:center;flex-direction:column;font-size:clamp(2.33rem,calc(2.08rem + 1.25vw),3.05rem);padding:1ch}svg{width:1rem}.cursor{display:flex;color:#868e96;justify-content:center}.cursor svg{padding:2px}.animation .cursor{animation:shake-y .5s}.cursor .active{color:#ffd43b;transform:scale(1.5);transition:transform .3s;transform-origin:center}.round{position:absolute;left:50%;top:1rem;transform:translate(-50%)}.videoWrapper{display:grid}.videoWrapper>*{grid-column:1;grid-row:1}@keyframes shake-y{0%,to{transform:translateY(0)}20%{transform:translateY(-5%)}40%{transform:translateY(5%)}60%{transform:translateY(-5%)}80%{transform:translateY(5%)}}output{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;position:absolute;width:100%;text-align:center;padding:4rem;left:0%;bottom:0%;white-space:nowrap;color:#80f058;text-transform:uppercase;transform-origin:center;animation:appear 3s both}@keyframes appear{0%{transform:scale(5);opacity:1}20%,80%{transform:scale(1);opacity:1}to{opacity:0}}
+
+</style>
+  </head>
+  <body>
+    <svg style="display: none">
+      <symbol
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        id="action"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.564A.562.562 0 019 14.437V9.564z"
+        />
+      </symbol>
+    </svg>
+    <div class="player">
+      <div class="score">0</div>
+      <div class="cursor">
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+      </div>
+    </div>
+    <div class="video">
+      <div class="videoWrapper"></div>
+      <div class="videoWrapper"></div>
+    </div>
+    <div class="player">
+      <div class="score">0</div>
+      <div class="cursor">
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+        <svg>
+          <use href="#action"></use>
+        </svg>
+      </div>
+    </div>
+    <div class="round">1/3</div>
+    <output></output>
+    
+  </body>
+</html>
