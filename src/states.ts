@@ -6,7 +6,6 @@ const idleState: State = {
   start: () => {
     playSequence([{ player: 1, anim: 'await', position: 0 }]),
       playSequence([{ player: 2, anim: 'await', position: 0 }])
-    console.log('deb')
   },
   input: (_, ctx) => {
     ctx.state = 'settings'
@@ -44,7 +43,6 @@ const settingsState: State = {
           player2: [...ctx.actions.player2, action],
         }
     }
-    console.log(ctx.actions.player1.length, ctx.actions.player2.length)
     if (ctx.actions.player1.length >= 10 && ctx.actions.player2.length >= 10)
       ctx.state = 'animation'
   },

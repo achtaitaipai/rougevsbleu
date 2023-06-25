@@ -1,6 +1,7 @@
 import { shakeScreen } from './fx'
 import { Actions, GameContext } from './types'
 import { VideoParams, playSequence } from './videos'
+
 type Position = 1 | 0 | -1
 export const parseActions = async (
   actions1: Actions[],
@@ -28,7 +29,7 @@ export const parseActions = async (
     pos1 = newPos1
     pos2 = newPos2
     if (goodPunch) {
-      await shakeScreen()
+      if(action1==='punch' && action2==='punch')await shakeScreen()
       if (action1 === 'punch') ctx.score = [ctx.score[0] + 1, ctx.score[1]]
       if (action2 === 'punch') ctx.score = [ctx.score[0], ctx.score[1] + 1]
     }

@@ -12,7 +12,6 @@ const setScore = (scores: [number, number]) => {
 }
 
 const setRound = (round: number) => {
-  console.log(roundElement, round)
   if (!roundElement) return
   roundElement.textContent = round.toString() + '/3'
 }
