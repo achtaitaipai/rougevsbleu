@@ -37,14 +37,14 @@ const game = newGame(setScore, setRound, setCursor, setOutput)
 
 startControls({
   player1: new Map([
-    ['q', 'left'],
-    ['d', 'right'],
-    ['s', 'punch'],
+    ['R', 'left'],
+    ['A', 'right'],
+    ['D', 'punch'],
   ]),
   player2: new Map([
-    ['j', 'left'],
-    ['l', 'right'],
-    ['k', 'punch'],
+    ['Q', 'left'],
+    ['P', 'right'],
+    ['T', 'punch'],
   ]),
   callback: (player, action) => game.input({ player, action }),
 })
